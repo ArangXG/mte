@@ -1,0 +1,108 @@
+I will read lines 460 to 535 of src/components/ui/InteractiveBattleUI.tsx to inspect all references to selectedUnitId inside submitHeroAction.
+
+I will read lines 535 to 565 of InteractiveBattleUI.tsx using read to check the remaining lines inside submitHeroAction.
+
+I will edit submitHeroAction inside src/components/ui/InteractiveBattleUI.tsx to support the custom overrideCasterId parameter, preventing React state race conditions during automated combat loops.
+
+I will read lines 160 to 200 of src/components/ui/InteractiveBattleUI.tsx using read to find the exact placement for the new states and auto-turn effect.
+
+I will read lines 410 to 445 of src/components/ui/InteractiveBattleUI.tsx using read to check our animateLog method so we can precisely add the speed scaling dependency and division math.
+
+I will read lines 465 to 490 of src/components/ui/InteractiveBattleUI.tsx to find the timeout callback block.
+
+I will edit animateLog inside src/components/ui/InteractiveBattleUI.tsx to divide timing delays by our speed setting, applying the pacing multiplier symmetrically to both hits and action-level transitions.
+
+I will read lines 190 to 220 of /home/project/src/components/ui/InteractiveBattleUI.tsx to align the placement of our auto-battle loop states and effects.
+
+I will edit src/components/ui/InteractiveBattleUI.tsx to insert the Auto-Battle and Speed state variables, the autoOnRef, and the automated turn execution effect loop.
+
+I will read lines 900 to 950 of src/components/ui/InteractiveBattleUI.tsx to find the battle screen's upper header layout.
+
+I will locate the Stage Badge section of InteractiveBattleUI.tsx using grep to find the top header overlay area.
+
+I will read lines 1010 to 1055 of InteractiveBattleUI.tsx to inspect the top-panel elements and plan the placements of the AUTO and SPEED toggles.
+
+I will read lines 1055 to 1100 of src/components/ui/InteractiveBattleUI.tsx to find the exact closing bracket of the stage badge and layout boundaries.
+
+I will edit /home/project/src/components/ui/InteractiveBattleUI.tsx to insert the top-right combat control buttons.
+
+I will run bun run build now to build our modified application with active automation and verify that the TypeScript and bundling configurations compilation succeeds flawlessly.
+
+I will run the client typecheck npx tsc --noEmit -p tsconfig.app.json to verify that there are zero remaining warnings or errors.
+
+I will search for executeAutoTurn inside InteractiveBattleUI.tsx using grep to identify its exact lines.
+
+I will read lines 190 to 285 of src/components/ui/InteractiveBattleUI.tsx using read to locate the executeAutoTurn block precisely so we can shift it below submitHeroAction.
+
+I will search for submitHeroAction inside the codebase using grep to check the new line offsets of the helper after our recent additions.
+
+I will search for handleUnitTap to locate the end of submitHeroAction.
+
+I will read lines 630 to 650 of InteractiveBattleUI.tsx to align the insertion of the auto-battle loop right below submitHeroAction.
+
+I will edit InteractiveBattleUI.tsx to move executeAutoTurn and the automated turn trigger below the submitHeroAction method declaration.
+
+I will read lines 550 to 590 of src/components/ui/InteractiveBattleUI.tsx to locate the end of submitHeroAction for inserting our auto-turn callbacks.
+
+I will edit InteractiveBattleUI.tsx to insert executeAutoTurn and the automatic action useEffect right below submitHeroAction's declaration, resolving the hoisting/order error completely.
+
+I will run npx tsc --noEmit -p tsconfig.app.json inside bash to verify that our order realignment has completely resolved the block-scoped hoisting error.
+
+I will run bun run build to confirm the final production build compiles cleanly.
+
+I will read /home/project/PROJECT/Status.md using the read tool to keep our project records fully synchronized.
+
+I will edit PROJECT/Status.md to document our newly implemented hero summon probabilities and battle speed sliders.
+
+I will edit PROJECT/Status.md to document the completed Auto-Battle and Speed control implementation.
+
+I will run bun run build one final time to verify that all visual layouts and responsive stylesheet modifications compile perfectly cleanly.
+
+I will run the client typecheck npx tsc --noEmit -p tsconfig.app.json one final time to verify that the compilation remains 100% clean.
+
+I will run typecheck verification on the server-side code block to verify that both layers compile perfectly clean.
+
+Combat Automation (Auto-Battle + Speed Controls) — Completion Report
+
+We have successfully fully implemented both the Auto-Battle loop (complete with prioritizing, targeting, and safety guards) and the Battle Speed Controller (available on all stages to accelerate manual or auto farming) inside src/components/ui/InteractiveBattleUI.tsx. The entire platform codebase remains 100% clean and compiles perfectly.
+
+PART 1: Auto-Battle Sourcing & Execution Flow
+
+We wired the automated combat loop to piggyback seamlessly off our existing connection and animation states:
+
+1. Gating & Toggle Button
+Checked the player's progression record to determine if the current stage has been cleared previously:
+const isStageAlreadyCleared = state?.stage_progress?.[String(stageId)]?.cleared === true;
+
+Added a stylized 🤖 AUTO: ON/OFF toggle switch positioned absolutely at the top right corner of the battle canvas. It is only visible and enabled on already-cleared stages, and remains completely hidden on new stages.
+The button has clear visual state cues: active glows and pulses in cyan-green when ON, and stays dimmed slate when OFF.
+2. Auto-Play Decision Logic & Loop
+
+When autoOn is toggled ON and phase === "player_phase" is reached, a useEffect detects active turns and executes the auto turn step.
+
+Selecting Action: Evaluates active skill cooldowns and MP cost parameters on the acting hero:
+Prioritizes Ultimate (skill2) if s2Ready is true.
+Else, prioritizes Skill 1 (skill1) if s1Ready is true.
+Falls back to Basic Attack (basic) otherwise.
+Dynamic Targeting:
+For Enemy-Targeting Actions: Filters all active monsters (units.filter(u => u.side !== "Hero" && u.isAlive)) and sorts them by hp ascending to automatically target the lowest-HP enemy.
+For Self-Targeting Actions: Targets the acting hero directly.
+For Ally-Targeting Actions: Filters all active heroes and automatically targets the lowest-HP ally (ensuring heal and support skills are never cast on enemies).
+Execution & Safety:
+Leverages the existing isSubmitting.current ref guard and transition animations. It executes exactly one turn, triggers animateLog(), and waits for the animation to completely conclude and the turn phase to return to player_phase before launching the next step—completely preventing double-submissions or lockups.
+If autoOn is toggled OFF, manual control is returned to the user instantly.
+PART 2: Battle Speed Controller (⚡ SPEED)
+Added a top-right ⚡ SPEED button that cycles through three paced velocities: 1x ➔ 2x ➔ 3x (defaulting to 1x).
+Division Splicing: The speed multiplier dynamically divides the animation delays inside animateLog() in real-time, pacing transitions and hits symmetrically:
+let nextDelay = DELAY_BETWEEN_HITS / speed; // 300ms, 150ms, or 100ms
+// ...
+nextDelay = DELAY_BETWEEN_ACTIONS / speed; // 1500ms, 750ms, or 500ms
+
+Universal Availability: Available on all stages (both new campaigns and cleared farming runs) and applies to both manual commands and auto-battle sequences. Choice persists cleanly throughout the game session.
+Verification Outputs
+Client Typecheck (npx tsc --noEmit -p tsconfig.app.json):
+Clean (No output/No errors)
+Server Typecheck (npx tsc --noEmit -p server/tsconfig.json):
+Clean (No output/No errors)
+Vite Production Bundler Build (bun run build):
+Success (Vite builds successfully in 19.82 seconds with zero warnings or errors)
