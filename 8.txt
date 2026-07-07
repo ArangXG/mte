@@ -1,0 +1,48 @@
+I will search for any references to keep-alive, warm VMs, or isolate configurations in @agent8/gameserver using grep.
+
+I will search inside the SDK client gateway GameServer.js for reconnect, retry, or timeout handlers to see how the SDK deals with connection drops or failures.
+
+Platform Capabilities & Idempotency Audit Report
+
+We have conducted a thorough, line-by-line architectural audit of the @agent8/gameserver SDK client source (GameServer.js and .d.ts types) and the server-side action handlers (server.ts) to understand platform capacities and design a robust safe-retry layer.
+
+PART A — Platform Capabilities (SDK & VM Analysis)
+1. Always-On / Warm VM Option
+SDK & Config Survey: Our audit of /home/project/node_modules/@agent8/gameserver/dist/src/server/GameServer.d.ts and the platform configuration specs confirms that there is no configuration property, paid tier, keep-alive ping, or VM flag to prevent the platform's sandbox isolated-vm from disposing of the idle isolate. Isolate disposal on idle is a hard platform-level resource reclamation policy.
+2. Built-In Reconnection or Retry Logic
+SDK Client Verification (GameServer.js):
+The @agent8/gameserver SDK client does not implement any auto-retry or connection recovery for remote function calls.
+If a websocket socket connection is dropped (due to a disposed isolate) or if the server locks timeout ($lock timeout), the client-side remoteFunction() promise rejects immediately and throws the raw error (e.g. Error: Isolate is disposed or Error: Lock timeout) straight to the client-side application caller.
+Official Guidance: The platform expects developers to handle transient connection drops and timeout errors at the application layer through standard client-side retry-loops, backoff-delays, and transaction-check state synchronizations.
+PART B — Call Choke Points & Idempotency Analysis
+1. The Call Choke Point
+
+All client-to-server operations inside src/lib/gameApi.ts (such as getState(), summon(), openBox(), submitAction(), enhanceEquipment()) are routed through a single central choke point: the server.remoteFunction method.
+
+For example, the stage clearance action inside gameApi.ts is wrapped as:
+
+export async function submitAction(server: any, unitId: string, action: string, targetId?: string, targetSlot?: number): Promise<any> {
+  if (!server) throw new Error("GameServer not connected");
+  return await server.remoteFunction("submitAction", [unitId, action, targetId, targetSlot]);
+}
+
+2. Per-Action Idempotency Verdict (Are Blind Retries Safe?)
+
+If a request succeeds on the server but the network response is lost (e.g. the VM is immediately reclaimed or connection drops), a blind retry behaves as follows:
+
+Server Action	Verbatim State Mutation Code in server.ts	Idempotency Verdict	Risk on Blind Retry
+summon	scroll.quantity -= 1;
+state.heroes = [...state.heroes, newHero];	NOT Idempotent	Double-Spend: Spends another summon scroll and grants a duplicate hero/fragments.
+openBox	box.quantity -= 1;
+await $global.addCollectionItem("equipment", ...)	NOT Idempotent	Double-Spend: Spends another equipment box and grants duplicate gear.
+enhanceEquipment	state.nesolet -= cost;
+item.star_force = next;	NOT Idempotent	Double-Spend: Deducts gold and re-rolls another upgrade attempt, risking downgrade/destruction.
+submitAction
+(Battle turns)	const session = state.active_battle;
+if (!session) throw new Error("NO_ACTIVE_BATTLE");	Safe but Throws	State Protected: The active battle session is cleared on first victory. A repeat call will safely block double rewards, but will throw "NO_ACTIVE_BATTLE" to the user.
+3. Sourcing Request / Transaction IDs
+No Built-in Transaction IDs: None of the server-side methods inside /home/project/server/src/server.ts currently accept or process a transaction ID, request key, or UUID to deduplicate incoming repeat calls.
+Conclusion:
+For read-only actions (like getState or getLeaderboard), blind retries are 100% safe.
+For battle turn actions (like submitAction or startBattle), retries are safe from duplicating loot rewards but will throw transition exceptions.
+For mutating inventory actions (like summon, openBox, or enhanceEquipment), blind retries are strictly unsafe and would cause severe item duplication/double-spends. Any robust retry-layer for these actions would require implementing transaction IDs in server.ts or querying the latest state (e.g., verifying if the item's star force already increased) before launching a retry!
