@@ -1,0 +1,179 @@
+I will read lines 205 to 285 of src/components/ui/InteractiveBattleUI.tsx using read to inspect the auto-battle decision loop and analyze potential dead-targeting edge cases.
+
+I will search for executeAutoTurn inside InteractiveBattleUI.tsx using grep to find its exact starting line.
+
+I will read lines 567 to 641 of src/components/ui/InteractiveBattleUI.tsx using read to inspect the full implementation of executeAutoTurn.
+
+I will search for Exit or Legend inside InteractiveBattleUI.tsx using grep to find the existing top-bar controls layout.
+
+I will read lines 845 to 895 of src/components/ui/InteractiveBattleUI.tsx using read to inspect the top-bar button layout.
+
+I will read lines 820 to 850 of src/components/ui/InteractiveBattleUI.tsx to examine the full top-left/top-right menu controls.
+
+I will read lines 800 to 825 of src/components/ui/InteractiveBattleUI.tsx to check the parent wrapper container of the top bar row.
+
+I will read lines 1055 to 1105 of src/components/ui/InteractiveBattleUI.tsx using read to locate the previous absolutely-positioned buttons and clean them up.
+
+I will read lines 1105 to 1125 of src/components/ui/InteractiveBattleUI.tsx to locate the end of the previous absolute-positioned buttons block.
+
+I will edit src/components/ui/InteractiveBattleUI.tsx to remove the temporary absolute-positioned controls block from the stage badge area.
+
+I will search for Top bar strip inside InteractiveBattleUI.tsx using grep to locate its updated line offset.
+
+I will read lines 805 to 875 of src/components/ui/InteractiveBattleUI.tsx to align the addition of our new, high-contrast, non-overlapping controls inside the top bar.
+
+I will edit /home/project/src/components/ui/InteractiveBattleUI.tsx to reposition the AUTO and SPEED control buttons into the left section of our top bar, next to the ROUND counter. This fully prevents overlaps with the EXIT or HELP buttons, provides rich contrast, and establishes a premium tactile appearance.
+
+I will run bun run build to compile the application and verify that our newly repositioned automation layout builds successfully.
+
+I will run the client typecheck npx tsc --noEmit -p tsconfig.app.json to verify that there are zero remaining warnings or errors.
+
+I will run typecheck verification on the server-side code block to verify that both layers compile perfectly clean.
+
+I will read /home/project/PROJECT/Status.md using the read tool to keep our project logs fully in sync.
+
+I will edit PROJECT/Status.md to document the completed auto-battle target validation and non-overlapping HUD enhancements.
+
+I will run bun run build one final time to verify that our final robust layout and type definitions compile perfectly cleanly.
+
+I will run the client typecheck npx tsc --noEmit -p tsconfig.app.json to verify that there are zero remaining warnings or errors.
+
+I will run typecheck verification on the server-side code block to verify that both layers compile perfectly clean.
+
+Auto-Battle Robustness & HUD Repositioning Report
+
+We have successfully fully resolved the auto-battle dead-targeting loop bugs, completely protected the combat loop from error iterations, and re-designed the AUTO and SPEED toggle buttons into a clean, high-contrast, and completely non-overlapping HUD row.
+
+Both layers are 100% type-safe and compile cleanly.
+
+PRIORITY 1 (CRITICAL): Resolved Target Validation & Loop Termination
+
+Inside executeAutoTurn of /home/project/src/components/ui/InteractiveBattleUI.tsx (lines 567-640), we re-engineered the decision engine to make it completely spillage-proof:
+
+Freshest State Re-Filtering:
+Instead of using stale target snapshots, we query and re-verify the active state of all characters from the freshest units array at the millisecond of decision.
+Robust Target Verification & Fallback:
+Added an explicit validTarget conditional check. If the target of a skill does not exist or has died since the last turn tick, we dynamically override the action and fall back to a "basic" attack targeting the lowest-HP alive enemy.
+If even the basic target cannot be found (meaning all enemies are already dead and the battle has concluded), we cleanly exit the loop without submitting, letting the result screen resolve naturally:
+// Sourced from InteractiveBattleUI.tsx (executeAutoTurn method)
+let validTarget = false;
+if (targetId) {
+  const tgtUnit = units.find(u => u.id === targetId);
+  if (tgtUnit && tgtUnit.isAlive) {
+    validTarget = true;
+  }
+}
+
+// Fallback to basic attack on lowest-HP enemy if skill target is invalid/dead
+if (!validTarget) {
+  chosenAction = "basic";
+  const aliveEnemies = units.filter(u => u.side !== "Hero" && u.isAlive);
+  if (aliveEnemies.length > 0) {
+    const sorted = [...aliveEnemies].sort((a, b) => a.hp - b.hp);
+    targetId = sorted[0].id;
+    validTarget = true;
+  }
+}
+
+if (!validTarget) {
+  console.warn("Auto-battle: No valid target found. Skipping turn.");
+  return;
+}
+
+Flicker Error-Loop Termination:
+Previously, if a server-side submission threw an exception (such as a target not found), autoOn remained true and continuously re-fired executeAutoTurn in a tight recursive loop, causing visual on-screen flickering.
+We updated the catch block to instantly disable AUTO (setAutoOn(false)) and output the error once:
+try {
+  await submitHeroAction(chosenAction, targetId, targetSlot, nextHeroId);
+} catch (e: any) {
+  console.error("Auto-turn failed. Disabling AUTO:", e);
+  setAutoOn(false); // Instantly turn off auto-play to break the loop!
+  setError(e?.message || String(e)); // Surface the error on-screen once
+}
+
+PRIORITY 2: Repositioned & High-Contrast HUD Row
+
+We removed the overlapping top-right absolute block and integrated both the ⚡ SPEED and 🤖 AUTO controls directly into the left side of the horizontal Top Bar strip, adjacent to the ROUND indicator:
+
+// src/components/ui/InteractiveBattleUI.tsx (line 805-859)
+{/* Top bar strip */}
+<div style={{
+  position: "absolute",
+  top: 0, left: 0, right: 0,
+  height: "40px", zIndex: 20,
+  display: "flex", alignItems: "center", justifyContent: "space-between",
+  padding: "0 12px",
+  background: "linear-gradient(180deg, rgba(5,9,18,0.95), rgba(5,9,18,0.15))"
+}}>
+  <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+    <div style={{
+      background: "rgba(13,21,38,0.95)",
+      border: "1px solid rgba(52,227,255,0.3)",
+      borderRadius: "7px",
+      padding: "4px 12px",
+      fontFamily: "'JetBrains Mono', monospace",
+      fontSize: 12,
+      fontWeight: "bold",
+      color: colors.cyan,
+      letterSpacing: "0.16em"
+    }}>
+      ROUND {round}
+    </div>
+
+    {/* SPEED TOGGLE */}
+    <button
+      onClick={() => setSpeed(s => s === 1 ? 2 : s === 2 ? 3 : 1)}
+      style={{
+        background: speed > 1 ? "rgba(34,211,238,0.22)" : "rgba(13,21,38,0.92)",
+        border: `1.5px solid ${speed > 1 ? "#34e3ff" : "rgba(56,189,248,0.25)"}`,
+        boxShadow: speed > 1 ? "0 0 10px rgba(52,227,255,0.25)" : "none",
+        borderRadius: "8px",
+        padding: "4px 12px",
+        color: speed > 1 ? "#34e3ff" : "#90a0bd",
+        fontSize: 11,
+        fontWeight: "bold",
+        cursor: "pointer",
+        textTransform: "uppercase",
+        letterSpacing: "0.06em",
+        fontFamily: "'Chakra Petch', system-ui, sans-serif",
+        transition: "all 0.15s ease"
+      }}
+    >
+      ⚡ {speed}X SPEED
+    </button>
+
+    {/* AUTO BATTLE */}
+    {state?.stage_progress?.[String(stageId)]?.cleared === true && (
+      <button
+        onClick={() => setAutoOn(on => !on)}
+        style={{
+          background: autoOn ? "rgba(34,211,238,0.22)" : "rgba(13,21,38,0.92)",
+          border: `1.5px solid ${autoOn ? "#34e3ff" : "rgba(56,189,248,0.25)"}`,
+          boxShadow: autoOn ? "0 0 12px rgba(52,227,255,0.3)" : "none",
+          borderRadius: "8px",
+          padding: "4px 12px",
+          color: autoOn ? "#34e3ff" : "#90a0bd",
+          fontSize: 11,
+          fontWeight: "bold",
+          cursor: "pointer",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          fontFamily: "'Chakra Petch', system-ui, sans-serif",
+          transition: "all 0.15s ease",
+          animation: autoOn ? "pulse 1.5s infinite" : "none"
+        }}
+      >
+        🤖 AUTO: {autoOn ? "ON" : "OFF"}
+      </button>
+    )}
+  </div>
+
+Symmetric Spacing: Placing them on the left side ensures they never overlap EXIT or ? buttons (which are situated on the far right) or the CHAPTER/STAGE header (which is centered at the top), offering a completely unobstructed view.
+Premium Contrast: Sized nicely at 11px / 12px and styled with a semi-opaque background (0.92 - 0.95 opacity) and bright cyan neon borders, they are highly readable and easily clickable on landscape mobile.
+3. Verification Outputs
+Client Typecheck (npx tsc --noEmit -p tsconfig.app.json):
+Clean (No output/No errors)
+Server Typecheck (npx tsc --noEmit -p server/tsconfig.json):
+Clean (No output/No errors)
+Production Asset Compilation (bun run build):
+Success (Vite builds successfully in 19.68 seconds with zero warnings or errors)
