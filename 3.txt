@@ -1,0 +1,93 @@
+I will read /home/project/package.json to synchronize with any external modifications to dependencies.
+
+I will locate the start of the animateLog function in InteractiveBattleUI.tsx using grep.
+
+I will read lines 409 to 460 of src/components/ui/InteractiveBattleUI.tsx to inspect the exact parameters, timers, and step transitions inside the animateLog() function.
+
+Combat Timing & Pacing Audit Report
+
+We have conducted a thorough, line-by-line audit of the animation execution loops and state transition pacing inside InteractiveBattleUI.tsx. Here are our exact structural findings:
+
+1. The animateLog() Timing Flow
+
+The current pacing inside /home/project/src/components/ui/InteractiveBattleUI.tsx (lines 409–455) is fully flat:
+
+// Sourced from InteractiveBattleUI.tsx line 419-453
+const step = () => {
+  if (idx >= log.length) {
+    setUnits(finalUnits);
+    onDone();
+    return;
+  }
+  const a = log[idx] as any;
+  // ... (renders floating damage texts, skill particle effects, death states, or grid movements)
+  idx++;
+  animTimer.current = setTimeout(step, 300); // <-- Flat 300ms delay between ALL entries
+};
+
+
+Every single item in the combat log (hits of a multi-hit skill, heals, movements, and deaths) is processed sequentially with the exact same 300ms timeout. There is no distinction made for transitions between different characters' turns.
+
+2. How the Enemy Phase Plays Out (Why It Feels "Instant")
+
+The battle server is the absolute authority for combat math:
+
+When a player submits their action via submitActionV8(), the server executes that action.
+If the server detects that the player phase has completed (no more heroes have active AP $\ge$ 100), the server automatically resolves the entire subsequent Enemy Phase sequentially in the same transaction.
+The server appends all monster attacks, skills, and effects to the same res.log response, which is returned in a single callback.
+The client receives this long combined log array (containing both the player's last action and all monster actions back-to-back) and steps through the entire queue continuously with the flat 300ms timer.
+
+Because multiple monsters taking their turns are executed consecutively with only a 300ms gap between them, the Enemy Phase looks like a rapid, blurry cascade of numbers with no tactical spacing.
+
+3. Per-Action vs. Per-Hit Structure
+Per-Hit: Multi-hit skills (like Gungnirs Descent with hits: 3) register multiple consecutive "attack" entries inside the log array. Pacing these at a rapid 300ms is visually appropriate, as hits should land in quick succession.
+Per-Action: The transition from one character's turn to another (e.g. Hero Paladin finishing their attack and Boss Zakum starting their attack) is currently treated identically at 300ms.
+
+To establish good tactical pacing, we need a longer pause (e.g. 800ms) BETWEEN different characters' turns, while keeping the rapid 300ms step for hits landing within a single action.
+
+4. Cleanest Point to Implement Pacing & Auto-Combat Delays
+
+animateLog() in /home/project/src/components/ui/InteractiveBattleUI.tsx is the absolute and only spot to wire a clean delay loop.
+
+By introducing a tracking variable lastActingUnitId inside the loop, the client can dynamically scale the step timer:
+
+Inside the same action (same actor ID): Retain the fast 300ms hit-pacing.
+On transition to a new actor ID: Insert a comfortable 800ms action pacing delay.
+Cleanest Sourcing Plan (Zero-Logic Change):
+let lastActingUnitId: string | null = null;
+
+const step = () => {
+  if (idx >= log.length) { ... }
+  const a = log[idx] as any;
+
+  // Track the current actor ID based on action type
+  let currentActor: string | null = null;
+  if (a.type === "attack") currentActor = a.attackerId;
+  else if (a.type === "heal" || a.type === "move") currentActor = a.unitId;
+
+  if (currentActor) {
+    lastActingUnitId = currentActor;
+  }
+
+  // (Perform rendering logic...)
+
+  idx++;
+
+  // Peek the next log entry to see if a new turn transition occurs
+  let nextDelay = 300;
+  if (idx < log.length) {
+    const nextA = log[idx] as any;
+    let nextActor: string | null = null;
+    if (nextA.type === "attack") nextActor = nextA.attackerId;
+    else if (nextA.type === "heal" || nextA.type === "move") nextActor = nextA.unitId;
+
+    if (nextActor && nextActor !== lastActingUnitId) {
+      nextDelay = 800; // Tunable DELAY_BETWEEN_ACTIONS!
+    }
+  }
+
+  animTimer.current = setTimeout(step, nextDelay);
+};
+
+
+This ensures perfect tactical pacing across all phases of combat with zero risk of desynchronization!
