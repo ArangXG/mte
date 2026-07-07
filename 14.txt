@@ -1,0 +1,61 @@
+contentscript.js:14083 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 close listeners added. Use emitter.setMaxListeners() to increase limit
+n @ contentscript.js:14083
+contentscript.js:14083 MaxListenersExceededWarning: Possible EventEmitter memory leak detected. 11 end listeners added. Use emitter.setMaxListeners() to increase limit
+n @ contentscript.js:14083
+contentscript.js:14083 ObjectMultiplex - orphaned data for stream "app-init-liveness"
+warn @ contentscript.js:14083
+contentscript.js:14083 ObjectMultiplex - orphaned data for stream "app-init-liveness"
+warn @ contentscript.js:14083
+contentscript.js:14083 ObjectMultiplex - orphaned data for stream "background-liveness"
+warn @ contentscript.js:14083
+contentscript.js:14083 ObjectMultiplex - orphaned data for stream "background-liveness"
+warn @ contentscript.js:14083
+chunk-DYKRQPZ6.js?v=28c4431c:21609 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+@agent8_gameserver.js?v=6a46bf9f:3612 Attempting initial connection...
+@agent8_gameserver.js?v=6a46bf9f:3612 Attempting initial connection...
+@agent8_gameserver.js?v=6a46bf9f:2891 connect true 0xb209b513ffe3d396542ad814fb861d8fbc5fa2c4-1781507315120-preview 653e6fb7 wss://verse8-game-backend-kr-609824224664.asia-northeast3.run.app
+@agent8_gameserver.js?v=6a46bf9f:2960 Connected to server 0xb209b513ffe3d396542ad814fb861d8fbc5fa2c4-1781507315120-preview 653e6fb7
+@agent8_gameserver.js?v=6a46bf9f:3631 Initial connection successful!
+chunk-DYKRQPZ6.js?v=28c4431c:11643 Uncaught Error: Rendered fewer hooks than expected. This may be caused by an accidental early return statement.
+    at renderWithHooks (chunk-DYKRQPZ6.js?v=28c4431c:11643:19)
+    at updateFunctionComponent (chunk-DYKRQPZ6.js?v=28c4431c:14630:28)
+    at beginWork (chunk-DYKRQPZ6.js?v=28c4431c:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-DYKRQPZ6.js?v=28c4431c:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-DYKRQPZ6.js?v=28c4431c:3705:24)
+    at invokeGuardedCallback (chunk-DYKRQPZ6.js?v=28c4431c:3739:39)
+    at beginWork$1 (chunk-DYKRQPZ6.js?v=28c4431c:19818:15)
+    at performUnitOfWork (chunk-DYKRQPZ6.js?v=28c4431c:19251:20)
+    at workLoopSync (chunk-DYKRQPZ6.js?v=28c4431c:19190:13)
+    at renderRootSync (chunk-DYKRQPZ6.js?v=28c4431c:19169:15)
+chunk-DYKRQPZ6.js?v=28c4431c:11643 Uncaught Error: Rendered fewer hooks than expected. This may be caused by an accidental early return statement.
+    at renderWithHooks (chunk-DYKRQPZ6.js?v=28c4431c:11643:19)
+    at updateFunctionComponent (chunk-DYKRQPZ6.js?v=28c4431c:14630:28)
+    at beginWork (chunk-DYKRQPZ6.js?v=28c4431c:15972:22)
+    at HTMLUnknownElement.callCallback2 (chunk-DYKRQPZ6.js?v=28c4431c:3680:22)
+    at Object.invokeGuardedCallbackDev (chunk-DYKRQPZ6.js?v=28c4431c:3705:24)
+    at invokeGuardedCallback (chunk-DYKRQPZ6.js?v=28c4431c:3739:39)
+    at beginWork$1 (chunk-DYKRQPZ6.js?v=28c4431c:19818:15)
+    at performUnitOfWork (chunk-DYKRQPZ6.js?v=28c4431c:19251:20)
+    at workLoopSync (chunk-DYKRQPZ6.js?v=28c4431c:19190:13)
+    at renderRootSync (chunk-DYKRQPZ6.js?v=28c4431c:19169:15)
+?account=653e6fb7:113 The above error occurred in the <TutorialOverlay> component:
+
+    at TutorialOverlay (https://agent8-container-v2-7815619b332328.agent8.verse8.net/src/components/ui/TutorialOverlay.tsx:41:21)
+    at App (https://agent8-container-v2-7815619b332328.agent8.verse8.net/src/App.tsx:40:49)
+    at GameProvider (https://agent8-container-v2-7815619b332328.agent8.verse8.net/src/lib/GameContext.tsx:22:32)
+    at GameServerProvider (https://agent8-container-v2-7815619b332328.agent8.verse8.net/node_modules/.vite/deps/@agent8_gameserver.js?v=6a46bf9f:4193:31)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+console.error @ ?account=653e6fb7:113
+chunk-DYKRQPZ6.js?v=28c4431c:19466 Uncaught Error: Rendered fewer hooks than expected. This may be caused by an accidental early return statement.
+    at renderWithHooks (chunk-DYKRQPZ6.js?v=28c4431c:11643:19)
+    at updateFunctionComponent (chunk-DYKRQPZ6.js?v=28c4431c:14630:28)
+    at beginWork (chunk-DYKRQPZ6.js?v=28c4431c:15972:22)
+    at beginWork$1 (chunk-DYKRQPZ6.js?v=28c4431c:19806:22)
+    at performUnitOfWork (chunk-DYKRQPZ6.js?v=28c4431c:19251:20)
+    at workLoopSync (chunk-DYKRQPZ6.js?v=28c4431c:19190:13)
+    at renderRootSync (chunk-DYKRQPZ6.js?v=28c4431c:19169:15)
+    at recoverFromConcurrentError (chunk-DYKRQPZ6.js?v=28c4431c:18786:28)
+    at performConcurrentWorkOnRoot (chunk-DYKRQPZ6.js?v=28c4431c:18734:30)
+    at workLoop (chunk-DYKRQPZ6.js?v=28c4431c:197:42)
