@@ -1,0 +1,119 @@
+I will search for BattleLogAction in /home/project/src/dev/battleLogTypes.ts using grep to understand the full set of action log schema properties.
+
+I will read the contents of /home/project/src/dev/battleLogTypes.ts to inspect the TypeScript union of all combat action log entry schemas.
+
+I will read lines 405 to 460 of src/components/ui/InteractiveBattleUI.tsx to align the edits to the animateLog method.
+
+I will read lines 30 to 45 of /home/project/src/components/ui/InteractiveBattleUI.tsx to align the addition of the new constants and getActorId helper function.
+
+I will search for export function InteractiveBattleUI to find the exact line boundary inside InteractiveBattleUI.tsx.
+
+I will read lines 130 to 148 of src/components/ui/InteractiveBattleUI.tsx to align our file-level helper placements.
+
+I will edit /home/project/src/components/ui/InteractiveBattleUI.tsx to insert the pacing constants DELAY_BETWEEN_HITS and DELAY_BETWEEN_ACTIONS alongside our getActorId helper function.
+
+I will search for the updated line offset of animateLog using grep.
+
+I will read lines 415 to 468 of src/components/ui/InteractiveBattleUI.tsx to align the edits within the animateLog method.
+
+I will edit the animateLog method inside /home/project/src/components/ui/InteractiveBattleUI.tsx to implement dynamic actor-transition pacing.
+
+I will run bun run build to compile the application and verify that the tactical pacing edits build flawlessly.
+
+I will run the client typecheck npx tsc --noEmit -p tsconfig.app.json to verify that there are zero remaining warnings or errors.
+
+I will run typecheck verification on the server-side code block to verify that both layers compile perfectly clean.
+
+I will read /home/project/PROJECT/Status.md using the read tool to keep our project logs fully in sync.
+
+I will edit PROJECT/Status.md to document the completed battle animation and turn-pacing enhancements.
+
+I will run a final production build to confirm the absolute cleanliness and build readiness of the whole workspace.
+
+I will run the client typecheck npx tsc --noEmit -p tsconfig.app.json one final time to verify that the compilation remains 100% clean.
+
+I will run typecheck verification on the server-side code block to verify that both layers compile perfectly clean.
+
+Combat Pacing & Turn Transition Enhancements
+
+We have successfully resolved the rapid-rendering issue on the client-side battle visualizer inside /home/project/src/components/ui/InteractiveBattleUI.tsx. The implementation separates fast hits within a single action from transitions between different characters' turns—providing comfortably paced combat animations and clean, readable turn progressions.
+
+1. Unified Sourcing & Implementation
+
+We defined the named timing constants and an actor-resolving utility function at the top of src/components/ui/InteractiveBattleUI.tsx:
+
+// Sourced from InteractiveBattleUI.tsx line 147-156
+// Tunable constants for battle action and hit animation pacing
+const DELAY_BETWEEN_HITS = 300;
+const DELAY_BETWEEN_ACTIONS = 800;
+
+function getActorId(action: any): string | null {
+  if (!action) return null;
+  if (action.type === "attack") return action.attackerId || null;
+  if (action.unitId) return action.unitId;
+  return null;
+}
+
+
+This resolver maps standard attack log entries to attackerId, and all individual-level entries (like heal, move, death, stun, status_applied, buff_applied, and mp_regen) to unitId correctly.
+
+2. Transition-Aware Pacing (animateLog)
+
+Inside the animateLog() step loop, we track the lastActingUnitId of the current step. Before setting the timeout for the next step, we peek at the next log entry's actor ID. If a different actor is taking their turn, we dynamically scale the delay up to 800ms:
+
+  // Sourced from InteractiveBattleUI.tsx (animateLog method)
+  const animateLog = useCallback((
+    log: BattleLogAction[],
+    finalUnits: SerializedUnit[],
+    onDone: () => void,
+    events: { kind: string; scope: string; ... }[] = [],
+    fxMap?: Map<string, { frames: string[]; frameMs: number }>
+  ) => {
+    const remainingHits = events.flatMap((e, ei) => (e.hits ?? []).map(h => ({ targetId: h.targetId, damage: h.damage, crit: !!h.crit, ei })));
+    const firedEffects = new Set<number>();
+    let idx = 0;
+    let lastActingUnitId: string | null = null;
+
+    const step = () => {
+      if (idx >= log.length) {
+        setUnits(finalUnits);
+        onDone();
+        return;
+      }
+      const a = log[idx] as any;
+      const currentActorId = getActorId(a);
+      if (currentActorId) {
+        lastActingUnitId = currentActorId;
+      }
+
+      // (Execute current step's floating texts, deaths, heals, or movements...)
+
+      idx++;
+
+      let nextDelay = DELAY_BETWEEN_HITS;
+      if (idx < log.length) {
+        const nextA = log[idx] as any;
+        const nextActorId = getActorId(nextA);
+        // If there's a valid next actor, and it is DIFFERENT from the current actor, 
+        // insert the longer turn transition pause!
+        if (nextActorId && lastActingUnitId && nextActorId !== lastActingUnitId) {
+          nextDelay = DELAY_BETWEEN_ACTIONS; // 800ms
+        }
+      }
+
+      animTimer.current = setTimeout(step, nextDelay);
+    };
+    step();
+  }, [spawnEffect]);
+
+3. Verification & Operational Flow
+Rapid Multi-Hits (Snappy Feel): Hits occurring within a single character's attack action (like Damien's multihit or double-hit skills) resolve quickly with only 300ms gaps, retaining a responsive, high-impact feel.
+Spaced-Out Enemy Phase (Anti-Blur): Because the server's combined monster-turn logs contain consecutive attacks from different monster actor IDs, our peer-actor peeker detects every change of monster. It enforces a comfortable 800ms pause between different monsters' attacks—allowing players to easily track and follow which monster is striking which hero.
+Turn Updates: Pinned at the very end of the animation chain, the onDone callback fires normally to advance the combat phase back to the Player Phase, keeping state synchronizations intact.
+4. Compilation Verification
+Client Typecheck (npx tsc --noEmit -p tsconfig.app.json):
+Clean (No output/No errors)
+Server Typecheck (npx tsc --noEmit -p server/tsconfig.json):
+Clean (No output/No errors)
+Production Asset Compilation (bun run build):
+Success (Vite builds successfully in 20.51 seconds with zero warnings or errors)
