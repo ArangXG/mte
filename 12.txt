@@ -1,0 +1,61 @@
+TASK — build an interactive step-by-step tutorial for NEW players. Final flow (7 steps) is
+below, but BUILD IN STAGES. This first task = AUDIT 3 critical feasibility questions + build
+the reusable tutorial ENGINE + implement STEP 1 (summon) only. Do NOT build all steps yet.
+tsc clean (paste raw) + build.
+
+FINAL PLANNED FLOW (for context — implement only Step 1 now):
+1. Guide new player to SUMMON → do 1 summon using MTE → MUST get a hero (guaranteed),
+   random hero but NOT Paladin (they already have Paladin).
+2. Guide to MARKET → exchange gold → MTE once.
+3. Guide to FORMATION → arrange formation → save.
+4. In ROSTER → highlight the disabled ASCEND button → explain it unlocks max level.
+5. Still in roster → guide to MANAGE GEAR.
+6. Go to a STAGE → explain green circle = active unit can act → pick an active unit → action
+   bar appears → highlight ATTACK first, then skills, etc., each with an explanation of what
+   it does. (NOTE: action bar UI DIFFERS on desktop vs mobile — must highlight the correct
+   element per layout.)
+7. Tutorial ends → normal battle continues.
+
+PART 1 — AUDIT these 3 feasibility questions (report first, do not assume):
+A. GUARANTEED TUTORIAL SUMMON: normal summon is RNG (65% hero, can give fragments). For the
+   tutorial, Step 1 must ALWAYS yield a hero, random but excluding Paladin (id of Paladin?).
+   Can we add a special tutorial-summon path that forces a guaranteed non-Paladin hero? PASTE
+   the summon logic and how a guaranteed-hero tutorial variant could work (server-side, so
+   it's authoritative). Confirm feasible.
+B. STARTER RESOURCES: does a new player have enough MTE for 1 summon AND enough gold for 1
+   gold→MTE market exchange (steps 1-2)? PASTE the new-player starter grant (handle_new_user
+   / starter pack) and the summon cost + exchange cost. If insufficient, note we may need to
+   grant a small tutorial allowance so the tutorial can't get stuck.
+C. DEVICE-ADAPTIVE HIGHLIGHT: the battle action bar differs desktop (horizontal) vs mobile
+   (vertical right-side buttons). For Step 6, the tutorial must highlight the correct element
+   per layout. Confirm how to reference the ATTACK/skill buttons in BOTH layouts (refs/ids)
+   so the spotlight targets the right one on each device.
+
+PART 2 — TUTORIAL ENGINE (reusable, data-driven, cross-screen):
+- Dimming overlay with a spotlight cutout around a target element + a callout with
+  instruction text + arrow. FORCED: only the highlighted element is interactive.
+- Cross-screen: the tutorial must be able to guide the player ACROSS different screens
+  (summon, market, formation, roster, gear, stage) — advancing a step can involve navigating
+  to another screen and highlighting an element there. Design the step model to support
+  "navigate to screen X, highlight element Y, wait for action Z".
+- State machine + PERSISTENCE: save current step to player state; resume on reload; never
+  repeat once completed. Existing players default to COMPLETED (so they never see it).
+- DATA-DRIVEN: each step = { screen, targetElement, instructionText, advanceCondition }. So
+  the remaining steps are added as data later.
+
+PART 3 — IMPLEMENT STEP 1 ONLY (summon), to test the engine:
+- New player is guided to the Summon screen (highlight the summon button/entry), instruction
+  to summon once with MTE. On summon, force a guaranteed non-Paladin hero (per Part 1A).
+  Advance when the summon completes + hero received. Then END this partial tutorial (rest
+  added later), saving progress.
+- Only triggers for NEW players; existing players unaffected; normal summon still works
+  outside tutorial.
+
+VERIFY: new player is guided to summon, does 1 summon, ALWAYS gets a non-Paladin hero, step
+completes + persists (no repeat on reload); existing players never see it; normal summon
+unaffected. Raw tsc + build.
+
+REPORT: PART 1 audit (A guaranteed-summon feasibility + Paladin id; B starter resources
+enough or need allowance; C how to reference action buttons per desktop/mobile); PART 2 engine
+(overlay/spotlight/forced/cross-screen/persistence/data-driven + existing=completed default);
+PART 3 Step 1 summon working with guaranteed non-Paladin hero; raw tsc; build.
