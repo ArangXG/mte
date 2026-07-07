@@ -1,0 +1,70 @@
+I will read lines 280 to 350 of /home/project/src/components/battle/BattleCanvas3D.tsx using read to check the Canvas element, camera attributes, perspective settings, and responsive scaling wrappers.
+
+I will search for the <Canvas element inside BattleCanvas3D.tsx using grep to locate its exact line offset.
+
+I will read the last 45 lines of src/components/battle/BattleCanvas3D.tsx using read to check the Canvas and camera properties.
+
+Battle Camera & Layout Audit Report
+
+We have audited the 3D battle canvas, camera properties, and absolute UI overlays inside /home/project/src/components/battle/BattleCanvas3D.tsx and InteractiveBattleUI.tsx to understand and mitigate mobile landscape overlap issues.
+
+PART A — Platform Layout & Camera Audit
+1. 3D Battle Camera & Canvas (BattleCanvas3D.tsx)
+
+The battle scene is rendered on a 3D Three.js canvas utilizing an orthographic camera configuration:
+
+// Sourced from BattleCanvas3D.tsx line 583
+<Canvas orthographic camera={{ zoom: 17, position: [0, 0, 10], near: 0.1, far: 100 }}
+  style={{ position: "absolute", inset: 0, background: "#020617" }}
+  gl={{ antialias: true, alpha: false }}
+  onPointerMissed={handleMiss}>
+
+Zoom / Scaling: Currently, the zoom is hardcoded to a flat 17 across all viewport dimensions (mobile and desktop).
+Responsive Zoom Feasibility: 100% Effective and highly recommended. Since the camera is orthographic, reducing the zoom parameter (e.g. to 12.5) directly widens the visible bounds of the 3D viewport, scaling down all unit models, battlefield grids, and Drei <Html> nameplates, pulling them comfortably toward the center of the screen.
+2. Layout & Z-Index Structure (InteractiveBattleUI.tsx)
+
+The UI is layered using absolute CSS positions on top of the Three.js Canvas:
+
+3D Battle Canvas: Bottom-most layer, takes full-screen bounds: position: "absolute", inset: 0, zIndex: 0 (defined on line 573 of BattleCanvas3D.tsx).
+Bottom Action Bar: Positioned at bottom: 0, taking a fixed height of 100px with zIndex: 10.
+Top Bar Strip: Positioned at top: 0, taking a fixed height of 40px with zIndex: 20. It contains the ROUND counter and custom buttons.
+Hanging Stage Badge: Positioned at top: 0, left: "50%", transform: "translateX(-50%)", taking zIndex: 25.
+Unit Nameplates: Rendered inside the 3D scene using Drei's <Html center ...> wrapper, which projects normal HTML elements at the 3D model coordinates with a default zIndexRange: [20, 0].
+3. Sizing Conflicts on Short Viewports (Mobile Landscape)
+
+On a standard mobile landscape screen (e.g. height 390px), the absolute top bar (40px) and bottom action bar (100px) consume a massive 140px (or 36%) of the entire viewport vertical height.
+
+Because no dynamic safe zones are reserved, the 3D scene is projected across the full 100% height, forcing units in the front and back rows of the 3x3 diagonal grid to slide directly under these heavy UI overlays.
+
+PART B — Concrete Options & Tradeoffs
+Option A: Responsive Orthographic Camera Zoom-Out
+
+Modify the Canvas camera config to dynamically calculate zoom based on the active viewport aspect ratio:
+
+Implementation:
+const isMobileLandscape = window.innerHeight < 520 && window.innerWidth > window.innerHeight;
+const zoom = isMobileLandscape ? 12.5 : 17;
+
+Tradeoffs:
+Pros: Simple, completely isolated to mobile viewports (desktop remains byte-for-byte identical). It pulls the top and bottom row units away from the screen borders toward the center.
+Cons: On extremely tight heights (e.g., 320px viewports), a small degree of overlap could still occur if the player uses a very long name.
+Option B: CSS-Constrained Viewport Boundaries (Safe Zones)
+
+Squeeze the Three.js <Canvas> component's height on mobile landscape, constraining it to top: 40px and bottom: 100px (or using CSS calc(100vh - 140px)):
+
+Tradeoffs:
+Pros: Guarantees that units and nameplates can never slide under the UI overlays because the 3D scene is strictly restricted to the visible middle band.
+Cons: Compressing the Canvas container height in an orthographic camera environment heavily squishes the perspective, which requires custom width aspect adjustments to prevent the left and right squad columns from sliding off-screen.
+Option C: Rearranging & Compacting UI Buttons
+
+Reposition the AUTO and SPEED buttons to the right side next to the EXIT button in a single unified cluster, and decrease the top bar height slightly on short screens:
+
+Tradeoffs:
+Pros: Fully resolves the central CHAPTER/STAGE badge collision and overlapping with top-row nameplates.
+Cons: Sizing down buttons too much on mobile makes them hard to tap, violating touch target compliance guidelines.
+Recommended Solution: The Dual-Aesthetic Synthesis (Option A + Option C)
+
+To achieve pristine visual spacing with zero spillage, we recommend combining Option A (Responsive Camera Zoom) and Option C (Repositioning) on mobile-landscape:
+
+Camera Zoom-Out (12.5 zoom): Dynamically scale down the 3D battle arena on short viewports to center all units cleanly.
+Consolidated Right Controls: Group SPEED and AUTO buttons alongside the ? and EXIT buttons in a compact, highly visible, and solid-contrast row on the right side of the top bar. This leaves the left side for ROUND and keeps the center CHAPTER/STAGE badge completely clear of any button collisions!
