@@ -1,0 +1,51 @@
+StageMap.tsx:65 [Dev Config] DEV_UNLOCK_ALL_STAGES=true
+StageMap.tsx:65 [Dev Config] DEV_UNLOCK_ALL_STAGES=true
+5806.e9c37bb49d00f7e1.js?dpl=dpl_5dE8r5GRJVnGsP2PmxK1HJvpXLV5:1 08:12:51.423 INFO remote-container 👁️  Tab visibility changed: hidden
+5806.e9c37bb49d00f7e1.js?dpl=dpl_5dE8r5GRJVnGsP2PmxK1HJvpXLV5:1 08:12:53.542 INFO remote-container 👁️  Tab visibility changed: visible
+InteractiveBattleUI.tsx:265 [InteractiveBattleUI] Mount - stageId: 15
+InteractiveBattleUI.tsx:513 startBattle args -> stageId: 15 typeof: number | formationId: formation_1782816094312_kdmvbmi6m typeof: string | connected: true
+InteractiveBattleUI.tsx:265 [InteractiveBattleUI] Mount - stageId: 15
+InteractiveBattleUI.tsx:518 startBattle OK: {session: 'active_battle', seed: 90455210, round: 1, activeHeroes: Array(4), units: Array(16), …}
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1782816094312_rd3g9l9z7 catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1782818195721_anxv4kbnb catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1782818205512_cfobpnqiw catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1782818210366_4ycvz7gye catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1782877980485_7jwloq5pw catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1782932093680_mogkpguv5 catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1782932096394_q36gd2btq catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1782932098915_xq8j78nv8 catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=hero_1783356143766_5xn6mi6xq catalogId=none isSwapped=false idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=monster_17_0 catalogId=17 isSwapped=true idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=monster_17_1 catalogId=17 isSwapped=true idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=monster_7_0 catalogId=7 isSwapped=true idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=monster_6_0 catalogId=6 isSwapped=true idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=monster_5_0 catalogId=5 isSwapped=true idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=monster_3_0 catalogId=3 isSwapped=true idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:356 [UNIT PATH] id=boss_9300690 catalogId=22 isSwapped=true idleSource=none standFrames=0 moveFrames=0
+BattleCanvas3D.tsx:342 [SCALE CHECK] Elite Pikeman spriteH=4.68 heroRefH=4.25 ratio=1.10 ringVisible=yes
+BattleCanvas3D.tsx:343 [GROUND CHECK] Elite Pikeman scale=1.10 footY=-0.47 groundY=-0.47 grounded=true
+BattleCanvas3D.tsx:344 [RING WORLD] Elite Pikeman spriteOffsetY=-0.47 ringWorldY=3.90 floorY=3.90 onFloor=true
+BattleCanvas3D.tsx:342 [SCALE CHECK] Elite Pikeman spriteH=4.68 heroRefH=4.25 ratio=1.10 ringVisible=yes
+BattleCanvas3D.tsx:343 [GROUND CHECK] Elite Pikeman scale=1.10 footY=-0.47 groundY=-0.47 grounded=true
+BattleCanvas3D.tsx:344 [RING WORLD] Elite Pikeman spriteOffsetY=-0.47 ringWorldY=-3.50 floorY=-3.50 onFloor=true
+BattleCanvas3D.tsx:342 [SCALE CHECK] Snowman spriteH=5.10 heroRefH=4.25 ratio=1.20 ringVisible=yes
+BattleCanvas3D.tsx:343 [GROUND CHECK] Snowman scale=1.20 footY=-1.63 groundY=-1.63 grounded=true
+BattleCanvas3D.tsx:344 [RING WORLD] Snowman spriteOffsetY=-1.63 ringWorldY=-10.90 floorY=-10.90 onFloor=true
+BattleCanvas3D.tsx:342 [SCALE CHECK] Snow Yeti spriteH=4.40 heroRefH=3.83 ratio=1.15 ringVisible=yes
+BattleCanvas3D.tsx:343 [GROUND CHECK] Snow Yeti scale=1.15 footY=-0.97 groundY=-0.97 grounded=true
+BattleCanvas3D.tsx:344 [RING WORLD] Snow Yeti spriteOffsetY=-0.97 ringWorldY=5.30 floorY=5.30 onFloor=true
+BattleCanvas3D.tsx:342 [SCALE CHECK] Ice Sentinel spriteH=3.83 heroRefH=3.83 ratio=1.00 ringVisible=yes
+BattleCanvas3D.tsx:343 [GROUND CHECK] Ice Sentinel scale=1.00 footY=0.00 groundY=0.00 grounded=true
+BattleCanvas3D.tsx:344 [RING WORLD] Ice Sentinel spriteOffsetY=0.00 ringWorldY=-2.10 floorY=-2.10 onFloor=true
+BattleCanvas3D.tsx:342 [SCALE CHECK] Ice Knight spriteH=4.21 heroRefH=3.83 ratio=1.10 ringVisible=yes
+BattleCanvas3D.tsx:343 [GROUND CHECK] Ice Knight scale=1.10 footY=-0.42 groundY=-0.42 grounded=true
+BattleCanvas3D.tsx:344 [RING WORLD] Ice Knight spriteOffsetY=-0.42 ringWorldY=-9.50 floorY=-9.50 onFloor=true
+BattleCanvas3D.tsx:342 [SCALE CHECK] Horntail spriteH=7.48 heroRefH=3.40 ratio=2.20 ringVisible=yes
+BattleCanvas3D.tsx:343 [GROUND CHECK] Horntail scale=2.20 footY=-2.99 groundY=-2.99 grounded=true
+BattleCanvas3D.tsx:344 [RING WORLD] Horntail spriteOffsetY=-2.99 ringWorldY=-0.07 floorY=-0.07 onFloor=true
+5806.e9c37bb49d00f7e1.js?dpl=dpl_5dE8r5GRJVnGsP2PmxK1HJvpXLV5:1 08:13:30.887 INFO remote-container 👁️  Tab visibility changed: hidden
+5806.e9c37bb49d00f7e1.js?dpl=dpl_5dE8r5GRJVnGsP2PmxK1HJvpXLV5:1 08:14:03.757 INFO remote-container 👁️  Tab visibility changed: visible
+5806.e9c37bb49d00f7e1.js?dpl=dpl_5dE8r5GRJVnGsP2PmxK1HJvpXLV5:1 08:14:04.283 INFO remote-container 🏥 Visibility liveness check: ALIVE
+5806.e9c37bb49d00f7e1.js?dpl=dpl_5dE8r5GRJVnGsP2PmxK1HJvpXLV5:1 08:14:35.690 INFO remote-container 👁️  Tab visibility changed: hidden
+5806.e9c37bb49d00f7e1.js?dpl=dpl_5dE8r5GRJVnGsP2PmxK1HJvpXLV5:1 08:15:11.920 INFO remote-container 👁️  Tab visibility changed: visible
+5806.e9c37bb49d00f7e1.js?dpl=dpl_5dE8r5GRJVnGsP2PmxK1HJvpXLV5:1 08:15:12.264 INFO remote-container 🏥 Visibility liveness check: ALIVE
